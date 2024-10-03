@@ -51,10 +51,41 @@ const config: DatabaseConfig = {
   },
 };
 
+const connectionFunctionConfig: DatabaseConfig = {
+  models: [
+    {
+      uid: 'test',
+      singularName: 'test',
+      tableName: 'strapi_core_store_settings',
+      attributes: {},
+    },
+  ],
+  connection: {
+    client: 'postgres',
+    connection: async () => ({
+      host: 'localhost',
+      port: 5432,
+      database: 'strapi',
+      user: 'strapi',
+      password: () => 'strapi',
+      expirationChecker: () => true,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    }),
+  },
+  settings: {},
+};
+
 describe('Database', () => {
   describe('constructor', () => {
     it('it should intialize if config is provided', async () => {
       expect(() => new Database(config)).toBeDefined();
+    });
+    it('schema should be undefined if connection config function is provided', async () => {
+      const db = await Database.init(connectionFunctionConfig);
+      expect(db).toBeDefined();
+      expect(db.getSchemaName()).toBeUndefined();
     });
   });
 
